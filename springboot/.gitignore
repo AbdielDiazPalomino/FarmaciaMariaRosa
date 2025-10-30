@@ -1,2 +1,3 @@
-# Archivos con credenciales o configuraciones locales
+# Ignorar archivos de entorno
 .env
+**/.env
