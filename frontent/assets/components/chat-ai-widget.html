@@ -1,0 +1,241 @@
+<!-- chat-ai-widget.html -->
+<div id="chatAIWidget" class="chat-ai-widget">
+    <!-- Botón flotante -->
+    <button id="chatToggle" class="chat-toggle-btn">
+        <i class="bi bi-robot"></i>
+    </button>
+
+    <!-- Ventana del chat -->
+    <div id="chatWindow" class="chat-window">
+        <div class="chat-header">
+            <div class="chat-title">
+                <i class="bi bi-robot"></i>
+                <span>Asistente Farmacia</span>
+            </div>
+            <button id="chatClose" class="chat-close-btn">
+                <i class="bi bi-x"></i>
+            </button>
+        </div>
+        
+        <div id="chatMessages" class="chat-messages">
+            <div class="message bot-message">
+                <div class="message-content">
+                    ¡Hola! Soy tu asistente virtual de Farmacia María Rosa. 
+                    ¿En qué puedo ayudarte hoy? Puedo informarte sobre productos, 
+                    disponibilidad y precios.
+                </div>
+            </div>
+        </div>
+        
+        <div class="chat-input-container">
+            <div class="input-group">
+                <input type="text" id="chatInput" class="form-control" 
+                       placeholder="Escribe tu pregunta..." maxlength="500">
+                <button id="sendMessage" class="btn btn-custom">
+                    <i class="bi bi-send"></i>
+                </button>
+            </div>
+            <small class="text-muted">Pregunta sobre productos, precios y disponibilidad</small>
+        </div>
+    </div>
+</div>
+
+<style>
+.chat-ai-widget {
+    position: fixed;
+    bottom: 20px;
+    right: 20px;
+    z-index: 1000;
+}
+
+.chat-toggle-btn {
+    width: 60px;
+    height: 60px;
+    border-radius: 50%;
+    background: linear-gradient(135deg, #EC3237, #D62F34);
+    border: none;
+    color: white;
+    font-size: 24px;
+    cursor: pointer;
+    box-shadow: 0 4px 15px rgba(236, 50, 55, 0.4);
+    transition: all 0.3s ease;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.chat-toggle-btn:hover {
+    transform: scale(1.1);
+    box-shadow: 0 6px 20px rgba(236, 50, 55, 0.6);
+}
+
+.chat-window {
+    position: absolute;
+    bottom: 70px;
+    right: 0;
+    width: 350px;
+    height: 500px;
+    background: white;
+    border-radius: 15px;
+    box-shadow: 0 5px 25px rgba(0, 0, 0, 0.2);
+    display: none;
+    flex-direction: column;
+    border: 1px solid #e0e0e0;
+}
+
+.chat-window.active {
+    display: flex;
+}
+
+.chat-header {
+    background: linear-gradient(135deg, #EC3237, #D62F34);
+    color: white;
+    padding: 15px;
+    border-radius: 15px 15px 0 0;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+
+.chat-title {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    font-weight: 600;
+}
+
+.chat-close-btn {
+    background: none;
+    border: none;
+    color: white;
+    font-size: 18px;
+    cursor: pointer;
+    padding: 5px;
+}
+
+.chat-messages {
+    flex: 1;
+    padding: 15px;
+    overflow-y: auto;
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+}
+
+.message {
+    max-width: 85%;
+    padding: 10px 15px;
+    border-radius: 15px;
+    word-wrap: break-word;
+}
+
+.user-message {
+    align-self: flex-end;
+    background: #EC3237;
+    color: white;
+    border-bottom-right-radius: 5px;
+}
+
+.bot-message {
+    align-self: flex-start;
+    background: #f8f9fa;
+    color: #333;
+    border: 1px solid #e9ecef;
+    border-bottom-left-radius: 5px;
+}
+
+.message-content {
+    line-height: 1.4;
+}
+
+.chat-input-container {
+    padding: 15px;
+    border-top: 1px solid #e9ecef;
+}
+
+.input-group {
+    margin-bottom: 5px;
+}
+
+#chatInput {
+    border-radius: 20px;
+    padding: 10px 15px;
+    border: 1px solid #ddd;
+}
+
+#chatInput:focus {
+    border-color: #EC3237;
+    box-shadow: 0 0 0 0.2rem rgba(236, 50, 55, 0.25);
+}
+
+#sendMessage {
+    border-radius: 20px;
+    margin-left: 5px;
+    background: #EC3237;
+    border: none;
+    color: white;
+}
+
+#sendMessage:hover {
+    background: #D62F34;
+}
+
+/* Scrollbar personalizado */
+.chat-messages::-webkit-scrollbar {
+    width: 6px;
+}
+
+.chat-messages::-webkit-scrollbar-track {
+    background: #f1f1f1;
+    border-radius: 3px;
+}
+
+.chat-messages::-webkit-scrollbar-thumb {
+    background: #EC3237;
+    border-radius: 3px;
+}
+
+.chat-messages::-webkit-scrollbar-thumb:hover {
+    background: #D62F34;
+}
+
+/* Responsive */
+@media (max-width: 768px) {
+    .chat-window {
+        width: 300px;
+        height: 400px;
+    }
+    
+    .chat-ai-widget {
+        bottom: 10px;
+        right: 10px;
+    }
+}
+
+/* Dark mode support */
+body.dark-mode .chat-window {
+    background: #2d3748;
+    border-color: #4a5568;
+}
+
+body.dark-mode .bot-message {
+    background: #4a5568;
+    color: white;
+    border-color: #718096;
+}
+
+body.dark-mode .chat-input-container {
+    border-top-color: #4a5568;
+}
+
+body.dark-mode #chatInput {
+    background: #4a5568;
+    border-color: #718096;
+    color: white;
+}
+
+body.dark-mode #chatInput:focus {
+    background: #4a5568;
+    border-color: #EC3237;
+}
+</style>

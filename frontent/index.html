@@ -396,6 +396,33 @@
     renderFeaturedCarousel(featured);
   });
 </script>
+
+
+<!-- Incluir el widget de chat -->
+<script src="./assets/js/chat-ai.js"></script>
+
+<!-- Incluir el HTML del widget -->
+<iframe src="./assets/components/chat-ai-widget.html" 
+        style="display:none;" 
+        id="chatWidgetLoader">
+</iframe>
+
+<script>
+// Cargar el widget de chat después de que la página cargue
+window.addEventListener('load', function() {
+    fetch('./assets/components/chat-ai-widget.html')
+        .then(response => response.text())
+        .then(html => {
+            document.body.insertAdjacentHTML('beforeend', html);
+            // Reinicializar el chat después de cargar el HTML
+            new ChatAI();
+        })
+        .catch(error => {
+            console.error('Error loading chat widget:', error);
+        });
+});
+</script>
+
 </body>
 
 </html>
