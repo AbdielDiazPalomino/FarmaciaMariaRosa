@@ -94,13 +94,34 @@
 			<version>5.2.2</version>
 		</dependency>
 
-
-	    <!-- ⚠️ Repetida: spring-boot-starter-test aparece dos veces -->
-		<!-- <dependency>
+		<!-- Dependencias para seguridad y JWT -->
+		<!-- Seguridad base -->
+		<dependency>
 			<groupId>org.springframework.boot</groupId>
-			<artifactId>spring-boot-starter-test</artifactId>
-			<scope>test</scope>
-		</dependency> -->
+			<artifactId>spring-boot-starter-security</artifactId>
+		</dependency>
+
+		<!-- JWT (autenticación por tokens) -->
+		<dependency>
+			<groupId>io.jsonwebtoken</groupId>
+			<artifactId>jjwt-api</artifactId>
+			<version>0.11.5</version>
+		</dependency>
+		<dependency>
+			<groupId>io.jsonwebtoken</groupId>
+			<artifactId>jjwt-impl</artifactId>
+			<version>0.11.5</version>
+			<scope>runtime</scope>
+		</dependency>
+		<dependency>
+			<groupId>io.jsonwebtoken</groupId>
+			<artifactId>jjwt-jackson</artifactId> <!-- para serializar/deserializar -->
+			<version>0.11.5</version>
+			<scope>runtime</scope>
+		</dependency>
+
+
+
 	</dependencies>
     <!-- Configuración de compilación y empaquetado -->
 	<build>
