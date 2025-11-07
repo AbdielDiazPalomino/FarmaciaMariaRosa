@@ -17,8 +17,11 @@ import java.util.function.Function;
 @Component
 public class JwtUtil {
 
-    private static final String SECRET_KEY = "MI_SECRETO_SUPER_SEGURO_DE_256_BITS_PARA_FIRMAR_TOKENS";
+    // 👇 IMPORTANTE: esta clave debe ser BASE64 válida y de 256 bits (32 bytes).
+    // Puedes generar una nueva con: Base64.getEncoder().encodeToString("mi_clave_super_segura_1234567890123456".getBytes());
+    private static final String SECRET_KEY = "bWlfY2xhdmVfc3VwZXJfc2VndXJhXzEyMzQ1Njc4OTAxMjM0NTY2";
 
+    // ======= Extraer información del token =======
     public String extractUsername(String token) {
         return extractClaim(token, Claims::getSubject);
     }
@@ -41,9 +44,17 @@ public class JwtUtil {
         return Keys.hmacShaKeyFor(keyBytes);
     }
 
+    // ======= Generar token con UserDetails (versión antigua) =======
     public String generateToken(UserDetails userDetails) {
         Map<String, Object> claims = new HashMap<>();
         return createToken(claims, userDetails.getUsername());
+    }
+
+    // ======= Nueva versión: token con email y rol =======
+    public String generateToken(String email, String rol) {
+        Map<String, Object> claims = new HashMap<>();
+        claims.put("rol", rol);
+        return createToken(claims, email);
     }
 
     private String createToken(Map<String, Object> claims, String subject) {
@@ -56,6 +67,7 @@ public class JwtUtil {
                 .compact();
     }
 
+    // ======= Validación =======
     public boolean validateToken(String token, UserDetails userDetails) {
         final String username = extractUsername(token);
         return (username.equals(userDetails.getUsername()) && !isTokenExpired(token));
