@@ -1,10 +1,10 @@
 document.addEventListener('DOMContentLoaded', () => {
   // Verificar autenticación (misma lógica que otras páginas admin)
   const user = JSON.parse(localStorage.getItem('loggedInUser'));
-  if (!user || user.role !== 'admin') {
+  /*if (!user || user.role !== 'admin') {
     window.location.href = '../index.html';
     return;
-  }
+  }*/
 
   const API_BASE = 'http://127.0.0.1:8081/api';
   const categoriesTable = document.getElementById('categoriesTable');

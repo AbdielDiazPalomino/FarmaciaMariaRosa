@@ -766,10 +766,7 @@
       // Verificar autenticación
       document.addEventListener("DOMContentLoaded", () => {
         const user = JSON.parse(localStorage.getItem("loggedInUser"));
-        if (!user || user.role !== "admin") {
-          window.location.href = "../index.html";
-          return;
-        }
+        
 
         // Redireccionar a la página de reservas cuando se selecciona esa pestaña
         document

@@ -32,6 +32,9 @@ public class AuthController {
         if (usuarioRepository.findByEmail(usuario.getEmail()).isPresent()) {
             return ResponseEntity.badRequest().body("El correo ya está registrado");
         }
+
+         usuario.setRol("CLIENTE");
+
         usuario.setPasswordHash(passwordEncoder.encode(usuario.getPasswordHash()));
         usuarioRepository.save(usuario);
         return ResponseEntity.ok("Usuario registrado correctamente");

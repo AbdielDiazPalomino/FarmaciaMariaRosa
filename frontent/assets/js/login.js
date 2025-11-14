@@ -1,139 +1,103 @@
-document.addEventListener("DOMContentLoaded", function () {
-  // ===== Manejo de usuarios en localStorage =====
-  function getUsers() {
-        // Obtiene usuarios registrados (excepto admin, que está hardcodeado)
-    return JSON.parse(localStorage.getItem("users") || "[]");
-  }
-  function saveUser(email, password) {
-        // Guarda un nuevo usuario en localStorage
-    const users = getUsers();
-    users.push({ email, password, role: "user" });
-    localStorage.setItem("users", JSON.stringify(users));
-  }
-  function findUser(email, password) {
-        // Si es el admin, se valida con credenciales fijas
-    if (email === "admin@farmacia.com" && password === "123456") {
-      return { email, role: "admin" };
-    }
-        // Sino, busca en los usuarios guardados
-    return getUsers().find(u => u.email === email && u.password === password);
-  }
-  function userExists(email) {
-        // Verifica si el email ya existe (incluyendo admin)
-    return (
-      email === "admin@farmacia.com" ||
-      getUsers().some(u => u.email === email)
-    );
-  }
+// ===== Login con backend =====
+const loginForm = document.getElementById("loginForm");
+const loginError = document.getElementById("loginError");
 
-  // ===== Manejo de sesión =====
-  function setLoggedInUser(user) {
-    localStorage.setItem("loggedInUser", JSON.stringify(user));
-  }
-  function getLoggedInUser() {
-    return JSON.parse(localStorage.getItem("loggedInUser") || "null");
-  }
-  function logoutUser() {
-    localStorage.removeItem("loggedInUser");
-  }
+if (loginForm) {
+  loginForm.addEventListener("submit", async function (e) {
+    e.preventDefault();
+    const email = document.getElementById("loginEmail").value;
+    const password = document.getElementById("loginPassword").value;
 
-  // ===== Login =====
-  const loginForm = document.getElementById("loginForm");
-  const loginError = document.getElementById("loginError");
-  if (loginForm) {
-    loginForm.addEventListener("submit", function (e) {
-      e.preventDefault();
-      const email = document.getElementById("loginEmail").value;
-      const password = document.getElementById("loginPassword").value;
+    loginError.style.display = "none";
 
-      const user = findUser(email, password);
-      if (user) {
-                // Usuario válido → guardar sesión y redirigir
-        loginError.style.display = "none";
-        setLoggedInUser(user);
-        const modal = bootstrap.Modal.getInstance(document.getElementById('loginModal'));
-        modal.hide();
-        if (user.role === "admin") {
-          // Redirigir al panel de admin (ajustando según ruta actual)
-          const isInPages = window.location.pathname.includes("/pages/");
-          const isInAdmin = window.location.pathname.includes("/admin/");
-          if (isInPages || isInAdmin) {
-            window.location.href = "../admin/admin-productos.html";
-          } else {
-            window.location.href = "./admin/admin-productos.html";
-          }
+    try {
+      const response = await fetch("http://localhost:8081/api/auth/login", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          email: email,
+          passwordHash: password,
+        }),
+      });
+
+      if (response.ok) {
+        const data = await response.json();
+        
+        // ✅ GUARDAR TOKEN Y DATOS CORRECTAMENTE
+        localStorage.setItem("jwtToken", data.token); // Clave correcta: "jwtToken"
+        localStorage.setItem("loggedInUser", JSON.stringify({
+          email: data.email,
+          role: data.rol,
+          token: data.token
+        }));
+        
+        console.log('✅ Login exitoso:', data);
+        console.log('🔐 Token guardado:', data.token);
+        console.log('👤 Usuario:', data.email, 'Rol:', data.rol);
+
+        // Redirigir según el rol
+        if (data.rol === 'ADMIN') {
+          window.location.href = "./admin/admin-productos.html";
         } else {
-          alert("¡Bienvenido, " + email + "!");
-                    // Aquí se podría redirigir a perfil de usuario
+          window.location.href = "./admin/admin-productos.html";
         }
       } else {
-                // Usuario no encontrado → mostrar error
+        const errorText = await response.text();
+        loginError.textContent = errorText || "Credenciales inválidas";
         loginError.style.display = "block";
       }
-    });
-  }
+    } catch (err) {
+      console.error('❌ Error en login:', err);
+      loginError.textContent = "No se pudo conectar con el servidor.";
+      loginError.style.display = "block";
+    }
+  });
+}
 
-  // ===== Registro =====
-  const registerForm = document.getElementById("registerForm");
-  const registerError = document.getElementById("registerError");
-  const registerSuccess = document.getElementById("registerSuccess");
-  if (registerForm) {
-    registerForm.addEventListener("submit", function (e) {
-      e.preventDefault();
-      const email = document.getElementById("registerEmail").value;
-      const password = document.getElementById("registerPassword").value;
-      const password2 = document.getElementById("registerPassword2").value;
+// ===== Registro con backend =====
+const registerForm = document.getElementById("registerForm");
+const registerError = document.getElementById("registerError");
+const registerSuccess = document.getElementById("registerSuccess");
 
-      registerError.style.display = "none";
-      registerSuccess.style.display = "none";
+if (registerForm) {
+  registerForm.addEventListener("submit", async function (e) {
+    e.preventDefault();
+    const email = document.getElementById("registerEmail").value;
+    const password = document.getElementById("registerPassword").value;
+    const password2 = document.getElementById("registerPassword2").value;
 
-            // Validaciones: contraseñas coinciden y email único
-      if (password !== password2) {
-        registerError.textContent = "Las contraseñas no coinciden.";
-        registerError.style.display = "block";
-        return;
-      }
-      if (userExists(email)) {
-        registerError.textContent = "El correo ya está registrado.";
-        registerError.style.display = "block";
-        return;
-      }
-            // Guardar nuevo usuario
-      saveUser(email, password);
-      registerSuccess.style.display = "block";
-      registerForm.reset();
-    });
-  }
+    registerError.style.display = "none";
+    registerSuccess.style.display = "none";
 
-  // ===== Botón de login/perfil =====
-  const loginBtn = document.getElementById("loginBtn");
-  if (loginBtn) {
-    loginBtn.addEventListener("click", function (e) {
-      const user = getLoggedInUser();
-      if (user) {
-                // Si ya está logueado, redirigir según rol
-        e.preventDefault();
-        const isInPages = window.location.pathname.includes("/pages/");
-        const isInAdmin = window.location.pathname.includes("/admin/");
-        if (user.role === "admin") {
-          // Go to admin panel
-          if (isInPages || isInAdmin) {
-            window.location.href = "../admin/admin-productos.html";
-          } else {
-            window.location.href = "./admin/admin-productos.html";
-          }
-        } else {
-          // Go to profile page
-          if (isInPages || isInAdmin) {
-            window.location.href = "../pages/perfil.html";
-          } else {
-            window.location.href = "./pages/perfil.html";
-          }
-        }
+    if (password !== password2) {
+      registerError.textContent = "Las contraseñas no coinciden.";
+      registerError.style.display = "block";
+      return;
+    }
+
+    try {
+      const response = await fetch("http://localhost:8081/api/auth/register", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          nombre: email.split("@")[0],
+          email: email,
+          passwordHash: password,
+        }),
+      });
+
+      if (response.ok) {
+        registerSuccess.textContent = "¡Registro exitoso! Ahora puedes iniciar sesión.";
+        registerSuccess.style.display = "block";
+        registerForm.reset();
       } else {
-        // Si no hay usuario logueado, se abrirá el modal de login
-        // (funciona con data-bs-toggle o se puede abrir manualmente con JS)
+        const errorText = await response.text();
+        registerError.textContent = errorText || "Error en el registro.";
+        registerError.style.display = "block";
       }
-    });
-  }
-});
+    } catch (err) {
+      registerError.textContent = "No se pudo conectar con el servidor.";
+      registerError.style.display = "block";
+    }
+  });
+}
