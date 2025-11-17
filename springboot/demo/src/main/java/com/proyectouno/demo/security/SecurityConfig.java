@@ -35,7 +35,7 @@ public class SecurityConfig {
             .authorizeHttpRequests(auth -> auth
                     // Rutas públicas sin JWT
                     .requestMatchers("/api/auth/**").permitAll()
-                    .requestMatchers("/usuarios/**").permitAll()  // CRUD usuarios sin token
+                    
                     .requestMatchers("/api/productos/**").permitAll() 
                     .requestMatchers("/api/categorias/**").permitAll() 
                     
@@ -58,6 +58,11 @@ public class SecurityConfig {
                     .requestMatchers("/api/clientes/perfil/**",
                                      "/api/clientes/reservas/**").hasRole("CLIENTE")
 
+                    .requestMatchers("/usuarios/**").permitAll()  // CRUD usuarios sin token
+                    
+                    //.requestMatchers("/usuarios/**").hasRole("ADMIN")
+                    
+                    
                     // Todo lo demás requiere autenticación
                     .anyRequest().authenticated()
             );

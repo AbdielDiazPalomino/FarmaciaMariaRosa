@@ -6,6 +6,8 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
+
 
 import java.time.LocalDateTime;
 import java.util.List;
@@ -17,13 +19,36 @@ public class UsuarioController {
 
     @Autowired
     private UsuarioRepository usuarioRepository;
+    private BCryptPasswordEncoder passwordEncoder = new BCryptPasswordEncoder();
 
     // ================== CREAR USUARIO ==================
     @PostMapping
-    public ResponseEntity<Usuario> crearUsuario(@RequestBody Usuario usuario) {
-        usuario.setFechaCreacion(LocalDateTime.now());
-        Usuario nuevoUsuario = usuarioRepository.save(usuario);
-        return new ResponseEntity<>(nuevoUsuario, HttpStatus.CREATED);
+    public ResponseEntity<?> crearUsuario(@RequestBody Usuario usuario) {
+        try {
+            // Validar que el email no exista
+            if (usuarioRepository.findByEmail(usuario.getEmail()).isPresent()) {
+                return new ResponseEntity<>("El email ya está registrado", HttpStatus.BAD_REQUEST);
+            }
+
+            // Validar campos obligatorios
+            if (usuario.getPasswordHash() == null || usuario.getPasswordHash().trim().isEmpty()) {
+                return new ResponseEntity<>("La contraseña es obligatoria", HttpStatus.BAD_REQUEST);
+            }
+
+            // Cifrar la contraseña
+            String passwordCifrada = passwordEncoder.encode(usuario.getPasswordHash());
+            usuario.setPasswordHash(passwordCifrada);
+
+            // Establecer fechas
+            usuario.setFechaCreacion(LocalDateTime.now());
+            usuario.setEstado(usuario.getEstado() != null ? usuario.getEstado() : true);
+
+            Usuario nuevoUsuario = usuarioRepository.save(usuario);
+            return new ResponseEntity<>(nuevoUsuario, HttpStatus.CREATED);
+
+        } catch (Exception e) {
+            return new ResponseEntity<>("Error al crear usuario: " + e.getMessage(), HttpStatus.INTERNAL_SERVER_ERROR);
+        }
     }
 
     // ================== LISTAR TODOS LOS USUARIOS ==================
