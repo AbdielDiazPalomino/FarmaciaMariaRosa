@@ -30,7 +30,7 @@ public class Config {
 
             @Override
             public void addCorsMappings(CorsRegistry registry) {
-                registry.addMapping("/api/**") // aplica a todas las rutas bajo /api
+                registry.addMapping("/**") // aplica a todas las rutas bajo /api
                         .allowedOrigins("http://127.0.0.1:5500", "http://localhost:5500") // frontend permitido
                         .allowedMethods("GET", "POST", "PUT", "DELETE", "OPTIONS") // métodos permitidos
                         .allowedHeaders("*") // cualquier header
