@@ -484,10 +484,10 @@
       // Verificar autenticación
       document.addEventListener("DOMContentLoaded", () => {
         const user = JSON.parse(localStorage.getItem("loggedInUser"));
-        if (!user || user.role !== "admin") {
+        /*if (!user || user.role !== "admin") {
           window.location.href = "../index.html";
           return;
-        }
+        }*/
 
         // Cerrar sesión
         document.getElementById("logoutBtn").addEventListener("click", () => {
@@ -643,5 +643,7 @@
         modal.show();
       }
     </script>
+    <!-- En admin-productos.html, admin-usuarios.html, etc. -->
+    <script src="../assets/js/role-manager.js"></script>
   </body>
 </html>

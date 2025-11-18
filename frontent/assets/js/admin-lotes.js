@@ -9,10 +9,21 @@ let loteModal = null;
 document.addEventListener("DOMContentLoaded", function () {
   console.log("DOM cargado, inicializando...");
 
+  // ✅ OBTENER TOKEN JWT
+  const user = JSON.parse(localStorage.getItem("loggedInUser"));
+  const token = localStorage.getItem("jwtToken");
+  
+  console.log('🔐 Token JWT para lotes:', token ? '✅ Presente' : '❌ Faltante');
+
+  if (!user || !token) {
+    window.location.href = "../index.html";
+    return;
+  }
+
   loteModal = new bootstrap.Modal(document.getElementById("loteModal"));
 
-  loadProductos();
-  loadLotes();
+  loadProductos(token);
+  loadLotes(token);
   setupEventListeners();
   setupSearch();
 });
@@ -49,7 +60,10 @@ function setupEventListeners() {
           "tipo:",
           typeof idLote
         );
-        editarLote(idLote);
+        
+        // ✅ OBTENER TOKEN PARA EDITAR
+        const token = localStorage.getItem("jwtToken");
+        editarLote(idLote, token);
       }
 
       if (btnEliminar) {
@@ -61,7 +75,10 @@ function setupEventListeners() {
           "tipo:",
           typeof idLote
         );
-        eliminarLote(idLote);
+        
+        // ✅ OBTENER TOKEN PARA ELIMINAR
+        const token = localStorage.getItem("jwtToken");
+        eliminarLote(idLote, token);
       }
     });
   }
@@ -78,11 +95,12 @@ function setupSearch() {
 }
 
 // ==================== CARGAR LOTES ====================
-function loadLotes() {
+function loadLotes(token) {
   cargarDatosGenerico({
     url: API_URL,
     tablaId: "lotesTable",
-    columnas: 8, // número de columnas de tu tabla
+    columnas: 8,
+    token: token, // ✅ ENVIAR TOKEN
     callbackMostrarDatos: (datos) => {
       lotesData = datos;
       renderLotesTable(datos);
@@ -92,11 +110,12 @@ function loadLotes() {
 }
 
 // ==================== CARGAR PRODUCTOS ====================
-function loadProductos() {
+function loadProductos(token) {
   cargarDatosGenerico({
     url: API_PRODUCTOS,
     tablaId: "lotesTable",
     columnas: 8,
+    token: token, // ✅ ENVIAR TOKEN
     callbackMostrarDatos: (productos) => {
       populateProductoSelect(productos);
     },
@@ -200,11 +219,16 @@ function openAddLoteModal() {
 }
 
 // ==================== EDITAR LOTE ====================
-function editarLote(idLote) {
+function editarLote(idLote, token) {
   idLote = parseInt(idLote);
   console.log("Editando lote con ID:", idLote);
 
-  fetch(`${API_URL}/${idLote}`)
+  fetch(`${API_URL}/${idLote}`, {
+    headers: {
+      'Content-Type': 'application/json',
+      'Authorization': `Bearer ${token}` // ✅ ENVIAR TOKEN
+    }
+  })
     .then((response) => {
       if (!response.ok) throw new Error("Error al cargar lote");
       return response.json();
@@ -234,7 +258,7 @@ function editarLote(idLote) {
 }
 
 // ==================== ELIMINAR LOTE ====================
-function eliminarLote(idLote) {
+function eliminarLote(idLote, token) {
   idLote = parseInt(idLote);
   console.log("Eliminando lote con ID:", idLote);
 
@@ -246,12 +270,16 @@ function eliminarLote(idLote) {
     method: "DELETE",
     headers: {
       "Content-Type": "application/json",
+      "Authorization": `Bearer ${token}` // ✅ ENVIAR TOKEN
     },
   })
     .then((response) => {
       if (!response.ok) throw new Error("Error al eliminar");
       console.log("Lote eliminado");
-      loadLotes();
+      
+      // ✅ RECARGAR LOTES CON TOKEN
+      const newToken = localStorage.getItem("jwtToken");
+      loadLotes(newToken);
       showAlert("Lote eliminado exitosamente", "success");
     })
     .catch((error) => {
@@ -264,6 +292,13 @@ function eliminarLote(idLote) {
 function handleFormSubmit(e) {
   e.preventDefault();
   console.log("Enviando formulario...");
+
+  // ✅ OBTENER TOKEN PARA EL FORMULARIO
+  const token = localStorage.getItem("jwtToken");
+  if (!token) {
+    showAlert("Error: No hay token de autenticación", "danger");
+    return;
+  }
 
   const idProducto = document.getElementById("loteProducto").value;
   const numeroLote = document.getElementById("loteNumero").value;
@@ -298,13 +333,16 @@ function handleFormSubmit(e) {
 
   console.log("Datos a enviar:", formData);
 
+  const headers = {
+    "Content-Type": "application/json",
+    "Authorization": `Bearer ${token}` // ✅ ENVIAR TOKEN
+  };
+
   if (currentLoteId) {
     // Actualizar
     fetch(`${API_URL}/${currentLoteId}`, {
       method: "PUT",
-      headers: {
-        "Content-Type": "application/json",
-      },
+      headers: headers,
       body: JSON.stringify(formData),
     })
       .then((response) => {
@@ -314,7 +352,7 @@ function handleFormSubmit(e) {
       .then((data) => {
         console.log("Lote actualizado:", data);
         loteModal.hide();
-        loadLotes();
+        loadLotes(token); // ✅ PASAR TOKEN
         showAlert("Lote actualizado exitosamente", "success");
       })
       .catch((error) => {
@@ -325,9 +363,7 @@ function handleFormSubmit(e) {
     // Crear
     fetch(API_URL, {
       method: "POST",
-      headers: {
-        "Content-Type": "application/json",
-      },
+      headers: headers,
       body: JSON.stringify(formData),
     })
       .then((response) => {
@@ -337,7 +373,7 @@ function handleFormSubmit(e) {
       .then((data) => {
         console.log("Lote creado:", data);
         loteModal.hide();
-        loadLotes();
+        loadLotes(token); // ✅ PASAR TOKEN
         showAlert("Lote creado exitosamente", "success");
       })
       .catch((error) => {
@@ -406,6 +442,7 @@ function showAlert(message, type) {
 }
 
 function handleLogout() {
-  localStorage.removeItem("authToken");
+  localStorage.removeItem("loggedInUser");
+  localStorage.removeItem("jwtToken");
   window.location.href = "../index.html";
 }

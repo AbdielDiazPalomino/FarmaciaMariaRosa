@@ -39,6 +39,11 @@ public class JwtUtil {
                 .getBody();
     }
 
+     // ======= Extraer rol del token =======
+    public String extractRole(String token) {
+        return extractClaim(token, claims -> claims.get("rol", String.class));
+    }
+
     private Key getSignInKey() {
         byte[] keyBytes = Decoders.BASE64.decode(SECRET_KEY);
         return Keys.hmacShaKeyFor(keyBytes);

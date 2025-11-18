@@ -13,7 +13,10 @@ import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.security.web.SecurityFilterChain;
 import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
 import org.springframework.security.web.access.AccessDeniedHandler;
-
+import org.springframework.web.cors.CorsConfiguration;
+import org.springframework.web.cors.CorsConfigurationSource;
+import org.springframework.web.cors.UrlBasedCorsConfigurationSource;
+import java.util.Arrays;
 
 @Configuration
 @EnableMethodSecurity
@@ -24,12 +27,14 @@ public class SecurityConfig {
     public SecurityConfig(JwtAuthenticationFilter jwtFilter) {
         this.jwtFilter = jwtFilter;
     }
+    
     @Autowired
     private CustomAccessDeniedHandler accessDeniedHandler;
 
     @Bean
     public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
         http
+            .cors(cors -> cors.configurationSource(corsConfigurationSourceSecuruty()))
             .csrf(csrf -> csrf.disable())
             .sessionManagement(session -> session.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
             .authorizeHttpRequests(auth -> auth
@@ -41,27 +46,24 @@ public class SecurityConfig {
                     
 
                     // Solo ADMIN accede a estadísticas
-                    .requestMatchers("/api/estadisticas/**").hasRole("ADMIN")
+                    .requestMatchers("/api/estadisticas/**").hasAuthority("ADMIN") // ✅ CAMBIADO
 
                     // ADMIN, CAJERO y SECRETARIO pueden ver productos, categorías, lotes y clientes
                     .requestMatchers(
                                      "/api/lotes/**",
-                                     "/api/clientes/**").hasAnyRole("ADMIN", "CAJERO", "SECRETARIO")
+                                     "/api/clientes/**").hasAnyAuthority("ADMIN", "CAJERO", "SECRETARIO") // ✅ CAMBIADO
 
                     // Reservas: ADMIN y CAJERO
-                    .requestMatchers("/api/reservas/**").hasAnyRole("ADMIN", "CAJERO")
+                    .requestMatchers("/api/reservas/**").hasAnyAuthority("ADMIN", "CAJERO") // ✅ CAMBIADO
 
                     // Mensajes: ADMIN y SECRETARIO
-                    .requestMatchers("/api/mensajes/**").hasAnyRole("ADMIN", "SECRETARIO")
+                    .requestMatchers("/api/mensajes/**").hasAnyAuthority("ADMIN", "SECRETARIO") // ✅ CAMBIADO
 
                     // CLIENTE: acceso a su perfil o reservas
                     .requestMatchers("/api/clientes/perfil/**",
-                                     "/api/clientes/reservas/**").hasRole("CLIENTE")
+                                     "/api/clientes/reservas/**").hasAuthority("CLIENTE") // ✅ CAMBIADO
 
                     .requestMatchers("/usuarios/**").permitAll()  // CRUD usuarios sin token
-                    
-                    //.requestMatchers("/usuarios/**").hasRole("ADMIN")
-                    
                     
                     // Todo lo demás requiere autenticación
                     .anyRequest().authenticated()
@@ -69,11 +71,24 @@ public class SecurityConfig {
         http.exceptionHandling(exception -> exception
                 .accessDeniedHandler(accessDeniedHandler)
         );
-        // Solo aplicar JWT filter a rutas que no sean /usuarios/**
-        http.addFilterBefore(new JwtAuthenticationFilterExcluding("/usuarios/**", jwtFilter),
-                             UsernamePasswordAuthenticationFilter.class);
+        
+        http.addFilterBefore(jwtFilter, UsernamePasswordAuthenticationFilter.class);
 
         return http.build();
+    }
+
+    @Bean
+    public CorsConfigurationSource corsConfigurationSourceSecuruty() {
+        CorsConfiguration configuration = new CorsConfiguration();
+        configuration.setAllowedOrigins(Arrays.asList("http://127.0.0.1:5500", "http://localhost:5500"));
+        configuration.setAllowedMethods(Arrays.asList("GET", "POST", "PUT", "DELETE", "OPTIONS", "PATCH"));
+        configuration.setAllowedHeaders(Arrays.asList("*"));
+        configuration.setAllowCredentials(true);
+        configuration.setMaxAge(3600L);
+
+        UrlBasedCorsConfigurationSource source = new UrlBasedCorsConfigurationSource();
+        source.registerCorsConfiguration("/**", configuration);
+        return source;
     }
 
     @Bean

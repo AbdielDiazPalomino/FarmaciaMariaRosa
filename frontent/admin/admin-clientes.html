@@ -49,23 +49,65 @@
       data-bs-target="#adminSidebarNavMobile"><i class="bi bi-list"></i> Menú administración</button>
 
     <div class="admin-sidebar-layout">
-      <!-- SIDEBAR -->
-      <nav class="sidebar me-3 d-none d-lg-block">
-        <ul class="nav flex-column nav-pills gap-2">
-          <li><button class="nav-link" onclick="location.href='admin-productos.html'">Productos</button></li>
-          <li><button class="nav-link" onclick="location.href='admin-categorias.html'">Categorías</button></li>
-          <li><button class="nav-link" onclick="location.href='admin-lotes.html'">Lotes</button></li>
-          <li><button class="nav-link active" onclick="location.href='admin-clientes.html'">Clientes</button></li>
-          <li><button class="nav-link" onclick="location.href='admin-reservas.html'">Reservas</button></li>
-          <li><button class="nav-link" onclick="location.href='admin-estadisticas.html'">Estadísticas</button></li>
-          <li><button class="nav-link" onclick="location.href='admin-mensajes.html'">Mensajes</button></li>
-          <li class="nav-item" role="presentation">
+      <!-- Sidebar -->
+      <nav class="sidebar me-3 d-none d-lg-block" id="adminSidebarNav">
+        <div class="position-sticky pt-3">
+          <ul class="nav flex-column nav-pills gap-2" id="adminSidebarTabs" role="tablist">
+            <li class="nav-item" role="presentation">
+              <button class="nav-link w-100 text-start" id="tab-productos" data-bs-toggle="pill"
+                data-bs-target="#panel-productos" type="button" role="tab">
+                Productos
+              </button>
+            </li>
+
+            <li class="nav-item" role="presentation">
+              <button class="nav-link w-100 text-start" id="tab-categorias" data-bs-toggle="pill"
+                data-bs-target="#panel-categorias" type="button" onclick="window.location.href='admin-categorias.html'">
+                Categorías
+              </button>
+            </li>
+
+            <li class="nav-item" role="presentation">
+              <button class="nav-link w-100 text-start" id="tab-lotes" data-bs-toggle="pill"
+                data-bs-target="#panel-lotes" type="button" onclick="window.location.href='admin-lotes.html'">
+                Lotes
+              </button>
+            </li>
+
+            <li class="nav-item" role="presentation">
+              <button class="nav-link active w-100 text-start" id="tab-clientes" data-bs-toggle="pill"
+                data-bs-target="#panel-clientes" type="button" role="tab">
+                Clientes
+              </button>
+            </li>
+
+            <li class="nav-item" role="presentation">
+              <button class="nav-link w-100 text-start" id="tab-reservas" type="button"
+                onclick="window.location.href='admin-reservas.html'">
+                Reservas
+              </button>
+            </li>
+
+            <li class="nav-item" role="presentation">
+              <button class="nav-link w-100 text-start" id="tab-estadisticas" type="button"
+                onclick="window.location.href='admin-estadisticas.html'">
+                Estadísticas
+              </button>
+            </li>
+            <li class="nav-item" role="presentation">
+              <button class="nav-link w-100 text-start" id="tab-mensajes" type="button"
+                onclick="window.location.href='admin-mensajes.html'">
+                Mensajes
+              </button>
+            </li>
+            <li class="nav-item" role="presentation">
               <button class="nav-link w-100 text-start" id="tab-usuarios" type="button"
                 onclick="window.location.href='admin-usuarios.html'">
                 Usuarios
               </button>
             </li>
-        </ul>
+          </ul>
+        </div>
       </nav>
 
       <!-- PANEL -->
@@ -157,5 +199,7 @@
   <script src="../assets/js/login.js"></script>
   <script src="../assets/js/utils.js"></script>
   <script src="../assets/js/admin-clientes.js"></script>
+  <!-- En admin-productos.html, admin-usuarios.html, etc. -->
+  <script src="../assets/js/role-manager.js"></script>
 </body>
 </html>

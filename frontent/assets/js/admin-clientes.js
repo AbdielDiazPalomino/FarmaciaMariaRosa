@@ -1,6 +1,10 @@
 document.addEventListener("DOMContentLoaded", () => {
   const user = JSON.parse(localStorage.getItem("loggedInUser"));
-  if (!user || user.role !== "admin") {
+  const token = localStorage.getItem("jwtToken"); // ✅ OBTENER TOKEN JWT
+  
+  console.log('🔐 Token JWT para clientes:', token ? '✅ Presente' : '❌ Faltante');
+
+  if (!user || !token) {
     window.location.href = "../index.html";
     return;
   }
@@ -28,6 +32,7 @@ document.addEventListener("DOMContentLoaded", () => {
       url: `${API_BASE}/clientes`,
       tablaId: "clientsTable",
       columnas: 7,
+      token: token, // ✅ ENVIAR TOKEN
       callbackMostrarDatos: function (data) {
         clientes = data;
         mostrarClientes(clientes);
@@ -149,7 +154,10 @@ document.addEventListener("DOMContentLoaded", () => {
     try {
       const res = await fetch(`${API_BASE}/clientes/${id}`, {
         method: "PUT",
-        headers: { "Content-Type": "application/json" },
+        headers: { 
+          "Content-Type": "application/json",
+          "Authorization": `Bearer ${token}` // ✅ ENVIAR TOKEN
+        },
         body: JSON.stringify(data),
       });
 
@@ -160,6 +168,7 @@ document.addEventListener("DOMContentLoaded", () => {
 
       modalEditar.hide();
       cargarClientes();
+      alert("Cliente actualizado exitosamente");
     } catch (err) {
       console.error("Detalles del error al actualizar:", err);
       alert("No se pudo actualizar el cliente.\n" + err.message);

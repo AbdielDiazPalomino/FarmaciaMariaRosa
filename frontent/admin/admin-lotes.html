@@ -113,9 +113,17 @@
                 data-bs-target="#panel-estadisticas" type="button" role="tab" onclick="window.location.href='admin-estadisticas.html'">Estadísticas</button>
             </li>
              <li class="nav-item" role="presentation">
-              <button class="nav-link w-100 text-start" id="tab-mensajes" data-bs-toggle="pill"
-                data-bs-target="#panel-mensajes" type="button" role="tab" onclick="window.location.href='admin-mensajes.html'">Mensajes</button>
-            </li>
+                <button
+                  class="nav-link w-100 text-start"
+                  id="tab-mensajes"
+                  data-bs-toggle="pill"
+                  data-bs-target="#panel-mensajes"
+                  type="button"
+                  role="tab"
+                >
+                  Mensajes
+                </button>
+              </li>
             <li class="nav-item" role="presentation">
               <button class="nav-link w-100 text-start" id="tab-usuarios" type="button"
                 onclick="window.location.href='admin-usuarios.html'">
@@ -266,6 +274,8 @@
   <script src="../assets/js/login.js"></script>
   <script src="../assets/js/utils.js"></script>
   <script src="../assets/js/admin-lotes.js"></script>
+  <!-- En admin-productos.html, admin-usuarios.html, etc. -->
+  <script src="../assets/js/role-manager.js"></script>
 </body>
 
 </html>
