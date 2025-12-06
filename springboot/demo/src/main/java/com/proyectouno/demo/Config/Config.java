@@ -37,7 +37,7 @@ public class Config {
             @Override
             public void addCorsMappings(CorsRegistry registry) {
                 registry.addMapping("/**") // aplica a todas las rutas bajo /api
-                        .allowedOrigins("http://127.0.0.1:5500", "http://localhost:5500") // frontend permitido
+                        .allowedOrigins("http://127.0.0.1:5500", "http://localhost:5500", " http://localhost:5173/", " http://127.0.0.1:5173/") // frontend permitido
                         .allowedMethods("GET", "POST", "PUT", "DELETE", "OPTIONS") // métodos permitidos
                         .allowedHeaders("*") // cualquier header
                         .allowCredentials(true); // permite cookies
@@ -48,7 +48,7 @@ public class Config {
     @Bean
     public CorsConfigurationSource corsConfigurationSource() {
         CorsConfiguration configuration = new CorsConfiguration();
-        configuration.setAllowedOrigins(Arrays.asList("http://127.0.0.1:5500", "http://localhost:5500"));
+        configuration.setAllowedOrigins(Arrays.asList("http://127.0.0.1:5500", "http://localhost:5500", " http://localhost:5173/", " http://127.0.0.1:5173/"));
         configuration.setAllowedMethods(Arrays.asList("GET", "POST", "PUT", "DELETE", "OPTIONS", "PATCH"));
         configuration.setAllowedHeaders(Arrays.asList("*"));
         configuration.setAllowCredentials(true);

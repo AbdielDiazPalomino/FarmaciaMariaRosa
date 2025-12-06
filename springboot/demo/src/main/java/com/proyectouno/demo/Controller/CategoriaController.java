@@ -15,7 +15,7 @@ import java.util.stream.Collectors;
 
 @RestController
 @RequestMapping("/api")
-@CrossOrigin(origins = {"http://localhost:5500", "http://127.0.0.1:5500"})
+@CrossOrigin(origins = {"http://127.0.0.1:5500", "http://localhost:5500", " http://localhost:5173/", " http://127.0.0.1:5173/"})
 public class CategoriaController {
 
     @Autowired
