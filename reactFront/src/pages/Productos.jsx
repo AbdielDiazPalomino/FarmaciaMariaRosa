@@ -11,7 +11,7 @@ const apiFetch = async (url, options = {}) => {
   const token = getToken();
   const headers = {
     "Content-Type": "application/json",
-    ...(token && { Authorization: `Bearer ${token}` }) 
+    ...(token && { Authorization: `Bearer ${token}` })
   };
 
   return fetch(url, { ...options, headers });
@@ -67,38 +67,51 @@ const Productos = () => {
       setLoading(true);
       try {
         const response = await apiFetch(`${API_BASE}/productos`);
-
         if (!response.ok) throw new Error(`Error ${response.status}`);
-        const productosDTO = await response.json();
 
-        // Mapear ProductoDTO a estructura del frontend
+        const data = await response.json();
+
+        // DETECCIÓN INTELIGENTE DEL ARRAY (tu wrapper personalizado)
+        let productosDTO = [];
+
+        if (data.productos && Array.isArray(data.productos)) {
+          productosDTO = data.productos;
+          console.log("Wrapper detectado → usando data.productos");
+        } else if (Array.isArray(data)) {
+          productosDTO = data;
+        } else {
+          throw new Error("Formato de productos no válido");
+        }
+
+        // Mapear a la estructura del frontend
         const productosMapped = productosDTO.map((dto) => {
-          const categoria = categorias.find(
-            (c) => c.idCategoria === dto.idCategoria
-          );
+          const categoria = categorias.find(c => c.idCategoria === dto.idCategoria);
           return {
             idProducto: dto.idProducto,
-            nombre: dto.nombre,
-            descripcion: dto.descripcion,
-            precio: dto.precio,
-            stock: dto.stockActual,
+            nombre: dto.nombre || "Sin nombre",
+            descripcion: dto.descripcion || "Sin descripción",
+            precio: parseFloat(dto.precio) || 0,
+            stock: dto.stockActual || 0,
             categoria: categoria ? categoria.nombre : "Sin categoría",
-            imagen: dto.imagenPrincipal || "https://via.placeholder.com/150",
+            imagen: dto.imagenPrincipal || "https://via.placeholder.com/300",
             rating: 4.5,
-            requiereReceta: false,
+            requiereReceta: dto.requiereReceta || false,
           };
         });
 
         setProductos(productosMapped);
         setProductosFiltrados(productosMapped);
+
       } catch (error) {
         console.error("Error cargando productos:", error);
         setProductos([]);
+        setProductosFiltrados([]);
       } finally {
         setLoading(false);
       }
     };
 
+    // Solo cargar productos cuando ya tengamos categorías
     if (categorias.length > 0) {
       loadProductos();
     }
@@ -196,29 +209,29 @@ const Productos = () => {
   };
 
   // Buscar cliente por email
-//   const findClientIdByEmail = async (email) => {
-//     try {
-//       const response = await fetch(`${API_BASE}/clientes`, {
-//         headers: {
-//           Authorization: `Bearer ${TOKEN}`,
-//           "Content-Type": "application/json",
-//         },
-//       });
+  //   const findClientIdByEmail = async (email) => {
+  //     try {
+  //       const response = await fetch(`${API_BASE}/clientes`, {
+  //         headers: {
+  //           Authorization: `Bearer ${TOKEN}`,
+  //           "Content-Type": "application/json",
+  //         },
+  //       });
 
-//       if (response.ok) {
-//         const clientes = await response.json();
-//         const found = clientes.find(
-//           (c) => (c.email || c.mail || "").toLowerCase() === email.toLowerCase()
-//         );
-//         return found ? found.idCliente || found.id || null : null;
-//       }
+  //       if (response.ok) {
+  //         const clientes = await response.json();
+  //         const found = clientes.find(
+  //           (c) => (c.email || c.mail || "").toLowerCase() === email.toLowerCase()
+  //         );
+  //         return found ? found.idCliente || found.id || null : null;
+  //       }
 
-//       return null;
-//     } catch (error) {
-//       console.error("Error buscando cliente por email:", error);
-//       return null;
-//     }
-//   };
+  //       return null;
+  //     } catch (error) {
+  //       console.error("Error buscando cliente por email:", error);
+  //       return null;
+  //     }
+  //   };
 
   // Crear cliente
   const createCliente = async (clienteData) => {
@@ -457,9 +470,8 @@ const Productos = () => {
                 {visiblePages.map((page) => (
                   <li
                     key={page}
-                    className={`page-item ${
-                      currentPage === page ? "active" : ""
-                    }`}
+                    className={`page-item ${currentPage === page ? "active" : ""
+                      }`}
                   >
                     <button
                       className="page-link"
@@ -474,9 +486,8 @@ const Productos = () => {
                 ))}
 
                 <li
-                  className={`page-item ${
-                    currentPage === totalPages ? "disabled" : ""
-                  }`}
+                  className={`page-item ${currentPage === totalPages ? "disabled" : ""
+                    }`}
                 >
                   <button
                     className="page-link"
