@@ -43,6 +43,9 @@ public class SecurityConfig {
                     
                     .requestMatchers("/api/productos/**").permitAll() 
                     .requestMatchers("/api/categorias/**").permitAll() 
+                    .requestMatchers("/api/chat-ai/**").permitAll() 
+                    .requestMatchers("/api/clientes/**").permitAll()
+                    .requestMatchers("/api/contacto/**").permitAll()
                     
 
                     // Solo ADMIN accede a estadísticas
@@ -50,18 +53,17 @@ public class SecurityConfig {
 
                     // ADMIN, CAJERO y SECRETARIO pueden ver productos, categorías, lotes y clientes
                     .requestMatchers(
-                                     "/api/lotes/**",
-                                     "/api/clientes/**").hasAnyAuthority("ADMIN", "CAJERO", "SECRETARIO") // ✅ CAMBIADO
+                                     "/api/lotes/**").hasAnyAuthority("ADMIN", "CAJERO", "SECRETARIO") // ✅ CAMBIADO
 
                     // Reservas: ADMIN y CAJERO
-                    .requestMatchers("/api/reservas/**").hasAnyAuthority("ADMIN", "CAJERO") // ✅ CAMBIADO
+                    //.requestMatchers("/api/reservas/**").hasAnyAuthority("ADMIN", "CAJERO") // ✅ CAMBIADO
 
                     // Mensajes: ADMIN y SECRETARIO
                     .requestMatchers("/api/mensajes/**").hasAnyAuthority("ADMIN", "SECRETARIO") // ✅ CAMBIADO
 
                     // CLIENTE: acceso a su perfil o reservas
-                    .requestMatchers("/api/clientes/perfil/**",
-                                     "/api/clientes/reservas/**").hasAuthority("CLIENTE") // ✅ CAMBIADO
+                    //.requestMatchers(
+                    //                 "/api/clientes/reservas/**").hasAuthority("CLIENTE") // ✅ CAMBIADO
 
                     .requestMatchers("/usuarios/**").permitAll()  // CRUD usuarios sin token
                     

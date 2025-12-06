@@ -207,44 +207,62 @@ document.addEventListener("DOMContentLoaded", () => {
   }
 
   // 🔹 Carga productos desde localStorage (admin) o JSON
-  async function cargarProductos() {
-    try {
-      const response = await fetch('http://localhost:8081/api/productos');
-      if (!response.ok) {
-        throw new Error(`Error ${response.status}: ${response.statusText}`);
-      }
-      const productosDTO = await response.json();
-
-      // Mapear ProductoDTO a la estructura esperada por el frontend
-      productos = productosDTO.map((dto) => {
-        const categoria = categorias.find(c => c.idCategoria === dto.idCategoria);
-        return {
-          idProducto: dto.idProducto,
-          nombre: dto.nombre,
-          descripcion: dto.descripcion,
-          precio: dto.precio,
-          stock: dto.stockActual,
-          categoria: categoria ? categoria.nombre : 'Sin categoría',
-          imagen: dto.imagenPrincipal || 'https://via.placeholder.com/150',
-          rating: 'N/A' // Rating no está en ProductoDTO, asignamos 'N/A'
-        };
-      });
-
-      productosFiltrados = productos;
-      renderProducts();
-    } catch (error) {
-      console.error("Error cargando productos:", error);
-      container.innerHTML = `
-        <div class="col-12 text-center py-5">
-          <i class="bi bi-exclamation-triangle display-1 text-danger"></i>
-          <h3 class="mt-3">Error al cargar productos</h3>
-          <p class="text-muted">No se pudieron cargar los productos. Por favor, intenta de nuevo más tarde.</p>
-        </div>
-      `;
-      pagination.innerHTML = "";
+  // Carga productos desde el backend (funciona con tu wrapper actual)
+async function cargarProductos() {
+  try {
+    const response = await fetch('http://localhost:8081/api/productos');
+    if (!response.ok) {
+      throw new Error(`Error ${response.status}: ${response.statusText}`);
     }
-  
+    const data = await response.json();
+
+    // DETECCIÓN INTELIGENTE DEL ARRAY (igual que en utils.js)
+    let productosDTO = [];
+
+    if (data.productos && Array.isArray(data.productos)) {
+      productosDTO = data.productos;
+      console.log("Wrapper personalizado detectado → usando data.productos");
+    } else if (data.content && Array.isArray(data.content)) {
+      productosDTO = data.content;
+    } else if (Array.isArray(data)) {
+      productosDTO = data;
+    } else {
+      throw new Error("Formato de respuesta desconocido del servidor");
+    }
+
+    // Ahora sí mapear a la estructura del frontend
+    productos = productosDTO.map((dto) => {
+      const categoria = categorias.find(c => c.idCategoria === dto.idCategoria);
+      return {
+        idProducto: dto.idProducto,
+        nombre: dto.nombre || "Sin nombre",
+        descripcion: dto.descripcion || "Sin descripción",
+        precio: parseFloat(dto.precio) || 0,
+        stock: dto.stockActual || 0,
+        categoria: categoria ? categoria.nombre : 'Sin categoría',
+        imagen: dto.imagenPrincipal || 'https://via.placeholder.com/300x300?text=Sin+Imagen',
+        rating: '4.5' // puedes cambiarlo después
+      };
+    });
+
+    productosFiltrados = [...productos];
+    renderProducts();
+
+  } catch (error) {
+    console.error("Error cargando productos:", error);
+    container.innerHTML = `
+      <div class="col-12 text-center py-5">
+        <i class="bi bi-wifi-off display-1 text-danger"></i>
+        <h3 class="mt-4">No se pudieron cargar los productos</h3>
+        <p class="text-muted mb-4">${error.message}</p>
+        <button class="btn btn-danger" onclick="location.reload()">
+          <i class="bi bi-arrow-clockwise"></i> Reintentar
+        </button>
+      </div>
+    `;
+    pagination.innerHTML = "";
   }
+}
 
   // Cargar categorías y luego productos
   async function inicializar() {

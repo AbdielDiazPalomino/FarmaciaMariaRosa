@@ -2,7 +2,9 @@ class ChatAI {
     constructor() {
         this.isOpen = false;
         this.isLoading = false;
-        this.token = 'dummy-token'; // Token para las llamadas a la API
+        // OBTENER EL TOKEN REAL DEL localStorage (igual que en todos los admin)
+        const token = localStorage.getItem("jwtToken");
+        this.token = token || null; // ← TOKEN REAL O NULL
         
         this.init();
     }

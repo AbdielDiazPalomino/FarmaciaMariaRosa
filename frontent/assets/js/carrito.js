@@ -291,7 +291,17 @@ class Carrito {
             return;
         }
 
-        const token = 'dummy-token';
+        // OBTENER EL TOKEN REAL DEL localStorage
+const token = localStorage.getItem("jwtToken");
+
+// Si no hay token, NO enviar el header Authorization
+// → Spring Security lo dejará pasar porque /api/clientes es permitAll
+const headers = {
+    'Content-Type': 'application/json'
+};
+if (token) {
+    headers['Authorization'] = `Bearer ${token}`;
+}
 
         const findClientIdByEmail = async (email) => {
             try {
